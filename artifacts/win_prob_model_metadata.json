@@ -1,0 +1,13 @@
+{
+  "feature_names": [
+    "elo_diff",
+    "recent_win_pct_diff",
+    "points_per_game_diff",
+    "points_allowed_diff",
+    "turnover_diff",
+    "rest_diff",
+    "home_advantage",
+    "qb_status_diff"
+  ],
+  "version": "baseline_logreg_v1"
+}
