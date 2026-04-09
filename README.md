@@ -53,28 +53,6 @@ Copy `.env.example` to `.env`. Important variables:
 - **`/health/ready`** — database required; Redis required only if `READINESS_REQUIRE_REDIS=true` (503 when not satisfied).
 - **`/health`** — informational 200 with `database_connected` / `redis_connected` flags (backward compatible).
 
-## Local setup (without Docker)
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-# Start Postgres and Redis locally, then:
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**Celery worker** (optional; set `CELERY_BROKER_URL` in `.env`):
-
-```bash
-celery -A app.workers.celery_app worker --loglevel=info
-```
-
-Dashboard (proxies `/api` when configured in `dashboard/vite.config.ts`):
-
-```bash
-cd dashboard && npm install && npm run dev
-```
 
 ## Docker Compose
 
@@ -104,12 +82,6 @@ docker compose up --build
 1. `POST /auth/signup` → `POST /auth/login` → receive `access_token` and `api_key`.
 2. `POST /api/v1/events` with header `X-API-Key: <api_key>` and JSON body `{ "event_type": "order.placed", "payload": { "sku": "a" } }`.
 3. `GET /api/v1/analytics/summary?window_hours=24` — cached after first miss; worker may have pre-warmed windows if Celery is enabled.
-
-## Tests
-
-```bash
-.venv/bin/python -m pytest tests/ -q
-```
 
 Tests use SQLite + dependency overrides (processors disabled, Redis optional, auth rate limits no-op).
 
