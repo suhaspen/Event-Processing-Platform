@@ -9,15 +9,6 @@ FastAPI service for **ingesting append-only domain events**, persisting them in 
 3. **Analytics invalidation**: inline Redis `SCAN` delete, **or** enqueue **`post_ingestion_analytics_task`** when `CELERY_BROKER_URL` is set (worker invalidates and **pre-warms** windows from `ANALYTICS_PREWARM_WINDOW_HOURS`).
 4. **Reads**: `GET /analytics/*` uses Redis cache + Postgres aggregates + optional `analytics_snapshots` rows.
 
-```
-┌─────────┐     ┌──────────────┐     ┌──────────┐     ┌───────┐
-│ Client  │────▶│ FastAPI API  │────▶│ Postgres │     │ Redis │
-└─────────┘     └──────┬───────┘     └──────────┘     └───┬───┘
-                       │                                   │
-                       │         ┌──────────────┐          │
-                       └────────▶│ Celery worker│──────────┘
-                                 └──────────────┘
-```
 
 ## Stack
 
@@ -26,19 +17,6 @@ FastAPI service for **ingesting append-only domain events**, persisting them in 
 - Redis (rate limits, analytics cache, optional Celery broker)
 - Celery 5.x (optional background maintenance)
 
-## Repository layout
-
-| Path | Role |
-|------|------|
-| `app/main.py` | App factory, CORS, middleware, exception handlers |
-| `app/api/` | Routers: `auth`, `events`, `analytics`, `system` |
-| `app/core/` | `config`, `security`, `logging`, `exceptions` |
-| `app/db/` | Engine/session, ORM models |
-| `app/services/` | Ingestion, analytics, processors, Redis client |
-| `app/workers/` | Celery app + tasks |
-| `app/repositories/` | Event, snapshot, processor-result persistence |
-| `tests/` | pytest + `TestClient` (SQLite, dependency overrides) |
-| `dashboard/` | Vite/React demo UI |
 
 ## Configuration
 
